@@ -1,0 +1,91 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+model User {
+  id           Int           @id @default(autoincrement())
+  firstName    String
+  lastName     String
+  email        String        @unique
+  password     String
+  role         Role          @default(CLIENT)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  reservations Reservation[]
+}
+
+enum Role {
+  ADMIN
+  AGENT
+  CLIENT
+}
+
+
+model Category {
+  id           Int           @id @default(autoincrement())
+  name         String        @unique
+  arrangements Arrangement[]
+}
+
+
+model Arrangement {
+  id            Int           @id @default(autoincrement())
+  destination   String
+  description   String
+  price         Float
+  startDate     DateTime
+  endDate       DateTime
+  numberOfNights Int
+  imageUrl      String?
+  categoryId    Int
+  isActive       Boolean       @default(true)
+  capacity       Int           @default(20)
+  category      Category      @relation(fields: [categoryId], references: [id])
+  reservations  Reservation[]
+  discounts     Discount[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+
+model Reservation {
+  id            Int               @id @default(autoincrement())
+  status        ReservationStatus @default(PENDING)
+  userId        Int
+  user          User              @relation(fields: [userId], references: [id])
+  arrangementId Int
+  arrangement   Arrangement       @relation(fields: [arrangementId], references: [id])
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+model Discount {
+  id            Int         @id @default(autoincrement())
+  type          String      // "percentage" or "fixed"
+  value         Float
+  startDate     DateTime
+  endDate       DateTime
+  arrangementId Int
+  arrangement   Arrangement @relation(fields: [arrangementId], references: [id])
+  createdAt     DateTime    @default(now())
+}
+
+
+
