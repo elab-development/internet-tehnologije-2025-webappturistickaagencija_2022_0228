@@ -47,7 +47,6 @@ model Arrangement {
   startDate     DateTime
   endDate       DateTime
   numberOfNights Int
-  imageUrl      String?
   categoryId    Int
   isActive       Boolean       @default(true)
   capacity       Int           @default(20)
@@ -66,6 +65,7 @@ model Reservation {
   user          User              @relation(fields: [userId], references: [id])
   arrangementId Int
   arrangement   Arrangement       @relation(fields: [arrangementId], references: [id])
+  numberOfGuests   Int @default(1)
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
 }

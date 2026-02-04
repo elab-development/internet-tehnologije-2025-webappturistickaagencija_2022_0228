@@ -1,4 +1,5 @@
 import { SignJWT } from "jose";
+import { jwtVerify } from "jose";
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET || "dev-secret");
 
@@ -13,4 +14,13 @@ export async function signToken(payload: JwtPayload) {
     .setIssuedAt()
     .setExpirationTime("7d")
     .sign(secret);
+}
+
+export async function verifyToken(token: string): Promise<JwtPayload> {
+  const { payload } = await jwtVerify(token, secret);
+
+  return {
+    userId: payload.userId as number,
+    role: payload.role as "ADMIN" | "AGENT" | "CLIENT",
+  };
 }
