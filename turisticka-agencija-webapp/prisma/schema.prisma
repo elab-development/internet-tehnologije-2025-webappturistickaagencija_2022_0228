@@ -19,6 +19,7 @@ model User {
   email        String        @unique
   password     String
   role         Role          @default(CLIENT)
+  isActive Boolean           @default(true)
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   reservations Reservation[]
@@ -78,13 +79,17 @@ enum ReservationStatus {
 
 model Discount {
   id            Int         @id @default(autoincrement())
-  type          String      // "percentage" or "fixed"
+  type          DiscountType      
   value         Float
   startDate     DateTime
   endDate       DateTime
   arrangementId Int
   arrangement   Arrangement @relation(fields: [arrangementId], references: [id])
   createdAt     DateTime    @default(now())
+}
+enum DiscountType {
+  PERCENTAGE
+  FIXED
 }
 
 
