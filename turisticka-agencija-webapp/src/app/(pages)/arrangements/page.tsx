@@ -1,0 +1,202 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Card from "../../components/Card";
+import Button from "../../components/Button";
+import InputField from "../../components/InputField";
+
+type Category = {
+  id: number;
+  name: string;
+};
+
+type Arrangement = {
+  id: number;
+  destination: string;
+  description: string;
+  price: number;
+  startDate: string;
+  endDate: string;
+  numberOfNights: number;
+  capacity: number;
+  category: Category;
+};
+
+export default function ArrangementsPage() {
+  const [arrangements, setArrangements] = useState<Arrangement[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const [search, setSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [sortBy, setSortBy] = useState("newest");
+  const [currentPage, setCurrentPage] = useState(1);
+  const perPage = 6;
+
+  const handleSearch = (val: string) => { setSearch(val); setCurrentPage(1); };
+  const handleCategory = (val: string) => { setSelectedCategory(val); setCurrentPage(1); };
+  const handleSort = (val: string) => { setSortBy(val); setCurrentPage(1); };
+
+  useEffect(() => {
+    Promise.all([
+      fetch("/api/arrangements").then((res) => res.json()),
+      fetch("/api/categories").then((res) => res.json()),
+    ])
+     .then(([arr, cat]) => {
+        setArrangements(Array.isArray(arr) ? arr : []);
+        setCategories(Array.isArray(cat) ? cat : []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const filtered = arrangements
+    .filter((a) =>
+      a.destination.toLowerCase().includes(search.toLowerCase()) ||
+      a.description.toLowerCase().includes(search.toLowerCase())
+    )
+    .filter((a) =>
+      selectedCategory ? a.category.id === Number(selectedCategory) : true
+    )
+    .sort((a, b) => {
+      if (sortBy === "price-asc") return a.price - b.price;
+      if (sortBy === "price-desc") return b.price - a.price;
+      if (sortBy === "nights") return b.numberOfNights - a.numberOfNights;
+      return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
+    });
+
+  const totalPages = Math.ceil(filtered.length / perPage);
+  const paginated = filtered.slice(
+    (currentPage - 1) * perPage,
+    currentPage * perPage
+  );
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-500">Učitavanje aranžmana...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-6xl mx-auto px-4 py-10">
+      <h1 className="text-3xl font-bold text-gray-900 mb-2">Aranžmani</h1>
+      <p className="text-gray-500 mb-8">Pronađite idealno putovanje za vas</p>
+
+      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <InputField
+            label="Pretraga"
+            value={search}
+            onChange={(e) => handleSearch(e.target.value)}
+            placeholder="Pretražite po destinaciji..."
+          />
+
+          <div className="flex flex-col gap-1.5 w-full">
+            <label className="text-sm font-medium text-gray-700">Kategorija</label>
+            <select
+              value={selectedCategory}
+              onChange={(e) => handleCategory(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 outline-none focus:border-blue-500"
+            >
+              <option value="">Sve kategorije</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-1.5 w-full">
+            <label className="text-sm font-medium text-gray-700">Sortiraj po</label>
+            <select
+              value={sortBy}
+              onChange={(e) => handleSort(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 outline-none focus:border-blue-500"
+            >
+              <option value="newest">Najnovije</option>
+              <option value="price-asc">Cijena: najniža</option>
+              <option value="price-desc">Cijena: najviša</option>
+              <option value="nights">Broj noći</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="mt-4 text-sm text-gray-500">
+          Pronađeno: {filtered.length} aranžmana
+        </div>
+      </div>
+
+      {paginated.length === 0 ? (
+        <div className="text-center py-16">
+          <p className="text-gray-500 text-lg">Nema aranžmana koji odgovaraju pretrazi.</p>
+          <div className="mt-4">
+            <Button variant="outline" onClick={() => { setSearch(""); setSelectedCategory(""); }}>
+              Resetuj filtere
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {paginated.map((a) => (
+            <Card
+              key={a.id}
+              title={a.destination}
+              description={a.description}
+              price={a.price}
+              badge={a.category.name}
+              badgeColor="blue"
+            >
+              <div className="flex flex-col gap-2 text-sm text-gray-500">
+                <div className="flex justify-between">
+                  <span>🌙 {a.numberOfNights} noći</span>
+                  <span>👥 {a.capacity} mjesta</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>📅 {new Date(a.startDate).toLocaleDateString("sr-RS")}</span>
+                  <span>📅 {new Date(a.endDate).toLocaleDateString("sr-RS")}</span>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-2 mt-10">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+          >
+            ← Prethodna
+          </Button>
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              onClick={() => setCurrentPage(page)}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium cursor-pointer ${
+                currentPage === page
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              {page}
+            </button>
+          ))}
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+          >
+            Sledeća →
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
