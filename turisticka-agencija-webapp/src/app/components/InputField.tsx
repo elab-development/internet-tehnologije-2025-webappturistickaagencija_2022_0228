@@ -27,7 +27,7 @@ export default function InputField({
     <div className="flex flex-col gap-1.5 w-full">
       <label className="text-sm font-medium text-gray-700">
         {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
+        {required && <span className="text-[#CE4257] ml-1">*</span>}
       </label>
       <input
         type={type}
@@ -38,10 +38,10 @@ export default function InputField({
         disabled={disabled}
         min={min}
         className={`w-full px-4 py-2.5 rounded-lg border text-gray-900 placeholder-gray-400 outline-none transition-colors
-          ${error ? "border-red-500 focus:border-red-500" : "border-gray-300 focus:border-blue-500"}
+          ${error ? "border-[#CE4257] focus:border-[#CE4257]" : "border-gray-300 focus:border-[#FF7F51]"}
           ${disabled ? "bg-gray-100 cursor-not-allowed" : "bg-white"}`}
       />
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {error && <p className="text-sm text-[#CE4257]">{error}</p>}
     </div>
   );
 }

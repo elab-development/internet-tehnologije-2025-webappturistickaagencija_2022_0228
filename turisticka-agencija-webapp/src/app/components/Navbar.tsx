@@ -11,25 +11,24 @@ export default function Navbar() {
   return (
     <nav className="bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-        <Link href="/" className="text-xl font-bold text-blue-600">
+        <Link href="/" className="text-xl font-bold text-[#CE4257]">
           ✈ TravelApp
         </Link>
 
-        {/* Desktop meni */}
         <div className="hidden md:flex items-center gap-6">
-          <Link href="/" className="text-gray-600 hover:text-blue-600 transition-colors">
+          <Link href="/" className="text-gray-600 hover:text-[#CE4257] transition-colors">
             Početna
           </Link>
-          <Link href="/arrangements" className="text-gray-600 hover:text-blue-600 transition-colors">
+          <Link href="/arrangements" className="text-gray-600 hover:text-[#CE4257] transition-colors">
             Aranžmani
           </Link>
-          <Link href="/contact" className="text-gray-600 hover:text-blue-600 transition-colors">
+          <Link href="/contact" className="text-gray-600 hover:text-[#CE4257] transition-colors">
             Kontakt
           </Link>
 
           {user ? (
             <>
-              <Link href="/dashboard" className="text-gray-600 hover:text-blue-600 transition-colors">
+              <Link href="/dashboard" className="text-gray-600 hover:text-[#CE4257] transition-colors">
                 Dashboard
               </Link>
               <span className="text-sm text-gray-500">
@@ -37,24 +36,23 @@ export default function Navbar() {
               </span>
               <button
                 onClick={logout}
-                className="text-sm text-red-600 hover:text-red-700 cursor-pointer"
+                className="text-sm text-[#720026] hover:text-[#4F000B] cursor-pointer"
               >
                 Odjavi se
               </button>
             </>
           ) : (
             <>
-              <Link href="/login" className="text-gray-600 hover:text-blue-600 transition-colors">
+              <Link href="/login" className="text-gray-600 hover:text-[#CE4257] transition-colors">
                 Prijava
               </Link>
-              <Link href="/register" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+              <Link href="/register" className="bg-[#CE4257] text-white px-4 py-2 rounded-lg hover:bg-[#720026] transition-colors">
                 Registracija
               </Link>
             </>
           )}
         </div>
 
-        {/* Hamburger dugme za mobilni */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
           className="md:hidden text-gray-600 text-2xl cursor-pointer"
@@ -63,22 +61,21 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobilni meni */}
       {menuOpen && (
         <div className="md:hidden border-t border-gray-200 px-4 py-4 flex flex-col gap-3 bg-white">
-          <Link href="/" onClick={() => setMenuOpen(false)} className="text-gray-600 hover:text-blue-600">
+          <Link href="/" onClick={() => setMenuOpen(false)} className="text-gray-600 hover:text-[#CE4257]">
             Početna
           </Link>
-          <Link href="/arrangements" onClick={() => setMenuOpen(false)} className="text-gray-600 hover:text-blue-600">
+          <Link href="/arrangements" onClick={() => setMenuOpen(false)} className="text-gray-600 hover:text-[#CE4257]">
             Aranžmani
           </Link>
-          <Link href="/contact" onClick={() => setMenuOpen(false)} className="text-gray-600 hover:text-blue-600">
+          <Link href="/contact" onClick={() => setMenuOpen(false)} className="text-gray-600 hover:text-[#CE4257]">
             Kontakt
           </Link>
 
           {user ? (
             <>
-              <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="text-gray-600 hover:text-blue-600">
+              <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="text-gray-600 hover:text-[#CE4257]">
                 Dashboard
               </Link>
               <span className="text-sm text-gray-500">
@@ -86,17 +83,17 @@ export default function Navbar() {
               </span>
               <button
                 onClick={() => { logout(); setMenuOpen(false); }}
-                className="text-sm text-red-600 hover:text-red-700 text-left cursor-pointer"
+                className="text-sm text-[#720026] hover:text-[#4F000B] text-left cursor-pointer"
               >
                 Odjavi se
               </button>
             </>
           ) : (
             <>
-              <Link href="/login" onClick={() => setMenuOpen(false)} className="text-gray-600 hover:text-blue-600">
+              <Link href="/login" onClick={() => setMenuOpen(false)} className="text-gray-600 hover:text-[#CE4257]">
                 Prijava
               </Link>
-              <Link href="/register" onClick={() => setMenuOpen(false)} className="text-blue-600 font-semibold">
+              <Link href="/register" onClick={() => setMenuOpen(false)} className="text-[#CE4257] font-semibold">
                 Registracija
               </Link>
             </>

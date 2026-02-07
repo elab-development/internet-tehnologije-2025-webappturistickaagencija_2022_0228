@@ -3,20 +3,42 @@ import { prisma } from "@/app/lib/prisma";
 import { verifyToken } from "@/app/lib/auth";
 import { cookies } from "next/headers";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    const { searchParams } = new URL(req.url);
+    const dashboard = searchParams.get("dashboard");
+
+    if (dashboard === "true") {
+      const cookieStore = await cookies();
+      const token = cookieStore.get("auth_token")?.value;
+
+      if (token) {
+        try {
+          const payload = await verifyToken(token);
+
+          if (payload.role === "AGENT") {
+            const discounts = await prisma.discount.findMany({
+              where: { arrangement: { createdById: payload.userId } },
+              include: { arrangement: true },
+              orderBy: { id: "desc" },
+            });
+            return NextResponse.json(discounts);
+          }
+        } catch {
+          // invalid token, return all
+        }
+      }
+    }
+
     const discounts = await prisma.discount.findMany({
       include: { arrangement: true },
-      orderBy: { id: "desc" }
+      orderBy: { id: "desc" },
     });
 
     return NextResponse.json(discounts);
   } catch (error) {
     console.log(error);
-    return NextResponse.json(
-      { message: "Greška servera" },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "Greška servera" }, { status: 500 });
   }
 }
 
@@ -28,7 +50,7 @@ export async function POST(req: Request) {
     if (!token)
       return NextResponse.json({ message: "Niste prijavljeni" }, { status: 401 });
 
-    const payload: any = await verifyToken(token);
+    const payload = await verifyToken(token);
 
     if (payload.role !== "ADMIN" && payload.role !== "AGENT")
       return NextResponse.json({ message: "Nemate dozvolu" }, { status: 403 });

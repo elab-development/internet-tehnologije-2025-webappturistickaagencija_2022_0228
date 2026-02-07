@@ -42,7 +42,6 @@ export default function ContactPage() {
       <p className="text-gray-500 mb-10">Imate pitanje? Javite nam se!</p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-        {/* Forma */}
         <div className="bg-white rounded-xl border border-gray-200 p-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">Pošaljite poruku</h2>
 
@@ -53,7 +52,7 @@ export default function ContactPage() {
           )}
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 text-sm">
+            <div className="bg-[#CE4257]/10 border border-[#CE4257]/30 text-[#720026] px-4 py-3 rounded-lg mb-6 text-sm">
               {error}
             </div>
           )}
@@ -78,7 +77,7 @@ export default function ContactPage() {
 
             <div className="flex flex-col gap-1.5 w-full">
               <label className="text-sm font-medium text-gray-700">
-                Poruka <span className="text-red-500 ml-1">*</span>
+                Poruka <span className="text-[#CE4257] ml-1">*</span>
               </label>
               <textarea
                 value={message}
@@ -86,7 +85,7 @@ export default function ContactPage() {
                 placeholder="Unesite vašu poruku..."
                 required
                 rows={5}
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 outline-none focus:border-blue-500 transition-colors resize-none"
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 outline-none focus:border-[#FF7F51] transition-colors resize-none"
               />
             </div>
 
@@ -96,7 +95,6 @@ export default function ContactPage() {
           </form>
         </div>
 
-        {/* Info */}
         <div className="flex flex-col gap-6">
           <div className="bg-white rounded-xl border border-gray-200 p-8">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Kontakt informacije</h2>
@@ -120,9 +118,9 @@ export default function ContactPage() {
             </div>
           </div>
 
-          <div className="bg-blue-50 rounded-xl border border-blue-100 p-8">
-            <h2 className="text-xl font-semibold text-blue-900 mb-2">Brza pomoć</h2>
-            <p className="text-blue-700 text-sm">
+          <div className="bg-[#FF9B54]/10 rounded-xl border border-[#FF9B54]/30 p-8">
+            <h2 className="text-xl font-semibold text-[#4F000B] mb-2">Brza pomoć</h2>
+            <p className="text-[#720026] text-sm">
               Za hitna pitanja u vezi sa rezervacijama pozovite naš kontakt centar.
               Dostupni smo radnim danima od 09:00 do 17:00.
             </p>

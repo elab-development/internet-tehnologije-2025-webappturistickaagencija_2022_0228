@@ -126,13 +126,20 @@ export default function DashboardPage() {
         Dobrodošli, {user.firstName}!
       </h1>
       <p className="text-gray-500 mb-10">
-        Uloga: <span className="font-medium text-blue-600">{user.role}</span>
+        Uloga: <span className="font-medium text-[#CE4257]">{user.role}</span>
       </p>
 
       {(user.role === "ADMIN" || user.role === "AGENT") && (
         <section className="mb-10">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Upravljanje</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {user.role === "ADMIN" && (
+              <Card title="👥 Korisnici" description="Upravljaj nalozima, ulogama i statusom">
+                <Button fullWidth onClick={() => router.push("/dashboard/users")}>
+                  Upravljaj
+                </Button>
+              </Card>
+            )}
             {user.role === "ADMIN" && (
               <Card title="📁 Kategorije" description="Dodaj, izmijeni ili obriši kategorije">
                 <Button fullWidth onClick={() => router.push("/dashboard/categories")}>
@@ -159,7 +166,7 @@ export default function DashboardPage() {
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Nova rezervacija</h2>
           <div className="bg-white rounded-xl border border-gray-200 p-6">
             {reservationMsg && (
-              <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-2 rounded-lg mb-4 text-sm">
+              <div className="bg-[#FF9B54]/10 border border-[#FF9B54]/30 text-[#4F000B] px-4 py-2 rounded-lg mb-4 text-sm">
                 {reservationMsg}
               </div>
             )}
@@ -170,7 +177,7 @@ export default function DashboardPage() {
                   value={selectedArrangement}
                   onChange={(e) => setSelectedArrangement(e.target.value)}
                   required
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 outline-none focus:border-[#FF7F51]"
                 >
                   <option value="">Izaberi aranžman</option>
                   {arrangements.map((a) => (
@@ -188,7 +195,7 @@ export default function DashboardPage() {
                   onChange={(e) => setGuests(e.target.value)}
                   min="1"
                   required
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 outline-none focus:border-[#FF7F51]"
                 />
               </div>
               <Button type="submit">Rezerviši</Button>

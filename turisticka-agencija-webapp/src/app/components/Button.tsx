@@ -22,11 +22,11 @@ export default function Button({
   const base = "rounded-lg font-semibold transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed";
 
   const variants = {
-    primary: "bg-blue-600 text-white hover:bg-blue-700",
-    secondary: "bg-gray-600 text-white hover:bg-gray-700",
-    danger: "bg-red-600 text-white hover:bg-red-700",
+    primary: "bg-[#CE4257] text-white hover:bg-[#720026]",
+    secondary: "bg-[#4F000B] text-white hover:bg-[#720026]",
+    danger: "bg-[#720026] text-white hover:bg-[#4F000B]",
     success: "bg-green-600 text-white hover:bg-green-700",
-    outline: "border-2 border-blue-600 text-blue-600 hover:bg-blue-50",
+    outline: "border-2 border-[#CE4257] text-[#CE4257] hover:bg-[#CE4257]/10",
   };
 
   const sizes = {

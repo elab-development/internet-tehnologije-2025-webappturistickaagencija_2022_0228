@@ -11,10 +11,10 @@ type CardProps = {
 };
 
 const badgeColors = {
-  blue: "bg-blue-100 text-blue-800",
+  blue: "bg-[#FF9B54]/20 text-[#4F000B]",
   green: "bg-green-100 text-green-800",
-  red: "bg-red-100 text-red-800",
-  yellow: "bg-yellow-100 text-yellow-800",
+  red: "bg-[#720026]/10 text-[#720026]",
+  yellow: "bg-[#FF7F51]/20 text-[#4F000B]",
   gray: "bg-gray-100 text-gray-800",
 };
 
@@ -30,8 +30,8 @@ export default function Card({
   return (
     <div
       onClick={onClick}
-      className={`bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col gap-3 transition-all
-        ${onClick ? "cursor-pointer hover:shadow-md hover:border-blue-300" : ""}`}
+      className={`bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col gap-3 h-full transition-all
+        ${onClick ? "cursor-pointer hover:shadow-md hover:border-[#CE4257]" : ""}`}
     >
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
@@ -47,10 +47,10 @@ export default function Card({
       )}
 
       {price !== undefined && (
-        <p className="text-xl font-bold text-blue-600">{price.toFixed(2)} €</p>
+        <p className="text-xl font-bold text-[#CE4257]">{price.toFixed(2)} €</p>
       )}
 
-      {children && <div className="mt-2">{children}</div>}
+      {children && <div className="mt-auto pt-2">{children}</div>}
     </div>
   );
 }

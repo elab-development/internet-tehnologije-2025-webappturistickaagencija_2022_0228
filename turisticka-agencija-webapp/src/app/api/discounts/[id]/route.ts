@@ -23,7 +23,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json(discount);
 
-  } catch (error) {
+  } catch {
     return NextResponse.json({ message: "Greška na serveru." }, { status: 500 });
   }
 }
@@ -36,7 +36,7 @@ export async function PUT(req: Request) {
     if (!token)
       return NextResponse.json({ message: "Niste prijavljeni." }, { status: 401 });
 
-    const payload: any = await verifyToken(token);
+    const payload = await verifyToken(token);
 
     if (payload.role !== "ADMIN" && payload.role !== "AGENT")
       return NextResponse.json({ message: "Nemate dozvolu." }, { status: 403 });
@@ -94,7 +94,7 @@ export async function DELETE(req: Request) {
     if (!token)
       return NextResponse.json({ message: "Niste prijavljeni." }, { status: 401 });
 
-    const payload: any = await verifyToken(token);
+    const payload = await verifyToken(token);
 
     if (payload.role !== "ADMIN")
       return NextResponse.json({ message: "Samo admin može brisati popust." }, { status: 403 });

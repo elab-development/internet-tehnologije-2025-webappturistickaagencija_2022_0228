@@ -25,7 +25,7 @@ export default function Home() {
     fetch("/api/arrangements")
       .then((res) => res.json())
       .then((data) => {
-        setArrangements(data.slice(0, 6));
+        setArrangements(Array.isArray(data) ? data.slice(0, 6) : []);
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -34,12 +34,12 @@ export default function Home() {
   return (
     <div>
       {/* Hero sekcija */}
-      <section className="bg-blue-600 text-white py-20 px-4">
+      <section className="bg-gradient-to-r from-[#4F000B] to-[#CE4257] text-white py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             Pronađite savršeno putovanje
           </h1>
-          <p className="text-lg md:text-xl text-blue-100 mb-8">
+          <p className="text-lg md:text-xl text-white/80 mb-8">
             Istražite naše aranžmane i rezervišite odmor iz snova po najboljim cijenama.
           </p>
           <Button size="lg" onClick={() => router.push("/arrangements")}>
@@ -115,7 +115,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-8 px-4 text-center text-sm">
+      <footer className="bg-[#4F000B] text-[#FF9B54]/70 py-8 px-4 text-center text-sm">
         <p>© 2025 TravelApp. Sva prava zadržana.</p>
       </footer>
     </div>

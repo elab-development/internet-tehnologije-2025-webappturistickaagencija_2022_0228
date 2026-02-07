@@ -50,7 +50,7 @@ export default function DiscountsPage() {
     const fetchData = async () => {
       try {
         const [discRes, arrRes] = await Promise.all([
-          fetch("/api/discounts"),
+          fetch("/api/discounts?dashboard=true"),
           fetch("/api/arrangements"),
         ]);
         const [disc, arr] = await Promise.all([discRes.json(), arrRes.json()]);
