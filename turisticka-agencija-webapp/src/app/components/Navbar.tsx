@@ -12,7 +12,7 @@ export default function Navbar() {
     <nav className="bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
         <Link href="/" className="text-xl font-bold text-[#CE4257]">
-          ✈ TravelApp
+          ✈ Golden Compass
         </Link>
 
         <div className="hidden md:flex items-center gap-6">

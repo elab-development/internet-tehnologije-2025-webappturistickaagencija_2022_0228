@@ -28,6 +28,7 @@ type Arrangement = {
   endDate: string;
   numberOfNights: number;
   capacity: number;
+  image: string | null;
   category: Category;
 };
 
@@ -127,7 +128,7 @@ export default function ArrangementsPage() {
             <select
               value={selectedCategory}
               onChange={(e) => handleCategory(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 outline-none focus:border-blue-500"
+              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 outline-none focus:border-[#FF7F51]"
             >
               <option value="">Sve kategorije</option>
               {categories.map((c) => (
@@ -141,7 +142,7 @@ export default function ArrangementsPage() {
             <select
               value={sortBy}
               onChange={(e) => handleSort(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 outline-none focus:border-blue-500"
+              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 outline-none focus:border-[#FF7F51]"
             >
               <option value="newest">Najnovije</option>
               <option value="price-asc">Cijena: najniža</option>
@@ -179,6 +180,7 @@ export default function ArrangementsPage() {
                 price={discountedPrice ?? a.price}
                 badge={a.category.name}
                 badgeColor="blue"
+                image={a.image || undefined}
               >
                 <div className="flex flex-col gap-2 text-sm text-gray-500">
                   {discount && discountedPrice && (
@@ -226,7 +228,7 @@ export default function ArrangementsPage() {
               onClick={() => setCurrentPage(page)}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium cursor-pointer ${
                 currentPage === page
-                  ? "bg-blue-600 text-white"
+                  ? "bg-[#CE4257] text-white"
                   : "text-gray-600 hover:bg-gray-100"
               }`}
             >

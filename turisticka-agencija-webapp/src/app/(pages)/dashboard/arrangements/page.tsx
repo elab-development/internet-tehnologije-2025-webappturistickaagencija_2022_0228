@@ -21,6 +21,7 @@ type Arrangement = {
   numberOfNights: number;
   capacity: number;
   createdById: number;
+  image: string | null;
   category: Category;
 };
 
@@ -41,6 +42,8 @@ export default function ManageArrangementsPage() {
   const [nights, setNights] = useState("");
   const [capacity, setCapacity] = useState("20");
   const [categoryId, setCategoryId] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const [editId, setEditId] = useState<number | null>(null);
   const [editDest, setEditDest] = useState("");
@@ -50,6 +53,7 @@ export default function ManageArrangementsPage() {
   const [editEnd, setEditEnd] = useState("");
   const [editNights, setEditNights] = useState("");
   const [editCapacity, setEditCapacity] = useState("");
+  const [editImageFile, setEditImageFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (loading) return;
@@ -78,9 +82,31 @@ export default function ManageArrangementsPage() {
     setArrangements(Array.isArray(res) ? res : []);
   };
 
+  const uploadImage = async (file: File): Promise<string | null> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await fetch("/api/upload", { method: "POST", body: formData });
+    if (res.ok) {
+      const data = await res.json();
+      return data.url;
+    }
+    return null;
+  };
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage("");
+    setUploading(true);
+
+    let imageUrl: string | null = null;
+    if (imageFile) {
+      imageUrl = await uploadImage(imageFile);
+      if (!imageUrl) {
+        setMessage("Greška pri uploadu slike.");
+        setUploading(false);
+        return;
+      }
+    }
 
     const res = await fetch("/api/admin/arrangements", {
       method: "POST",
@@ -94,6 +120,7 @@ export default function ManageArrangementsPage() {
         numberOfNights: Number(nights),
         capacity: Number(capacity),
         categoryId: Number(categoryId),
+        image: imageUrl,
       }),
     });
     const data = await res.json();
@@ -102,11 +129,13 @@ export default function ManageArrangementsPage() {
       setMessage("Aranžman kreiran!");
       setDest(""); setDesc(""); setPrice(""); setStart("");
       setEnd(""); setNights(""); setCapacity("20"); setCategoryId("");
+      setImageFile(null);
       setShowForm(false);
       await refreshArrangements();
     } else {
       setMessage(data.message || "Greška.");
     }
+    setUploading(false);
   };
 
   const startEdit = (a: Arrangement) => {
@@ -118,10 +147,23 @@ export default function ManageArrangementsPage() {
     setEditEnd(a.endDate.split("T")[0]);
     setEditNights(String(a.numberOfNights));
     setEditCapacity(String(a.capacity));
+    setEditImageFile(null);
   };
 
   const handleUpdate = async (id: number) => {
     setMessage("");
+    setUploading(true);
+
+    let imageUrl: string | undefined = undefined;
+    if (editImageFile) {
+      const uploaded = await uploadImage(editImageFile);
+      if (!uploaded) {
+        setMessage("Greška pri uploadu slike.");
+        setUploading(false);
+        return;
+      }
+      imageUrl = uploaded;
+    }
 
     const res = await fetch(`/api/admin/arrangements/${id}`, {
       method: "PUT",
@@ -134,6 +176,7 @@ export default function ManageArrangementsPage() {
         endDate: editEnd,
         numberOfNights: Number(editNights),
         capacity: Number(editCapacity),
+        ...(imageUrl ? { image: imageUrl } : {}),
       }),
     });
     const data = await res.json();
@@ -145,6 +188,7 @@ export default function ManageArrangementsPage() {
     } else {
       setMessage(data.message || "Greška.");
     }
+    setUploading(false);
   };
 
   const handleDelete = async (id: number) => {
@@ -215,7 +259,7 @@ export default function ManageArrangementsPage() {
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
                 required
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 outline-none focus:border-blue-500"
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 outline-none focus:border-[#FF7F51]"
               >
                 <option value="">Izaberi kategoriju</option>
                 {categories.map((c) => (
@@ -223,8 +267,22 @@ export default function ManageArrangementsPage() {
                 ))}
               </select>
             </div>
+            <div className="flex flex-col gap-1.5 w-full md:col-span-2">
+              <label className="text-sm font-medium text-gray-700">Slika aranžmana</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 outline-none focus:border-[#FF7F51]"
+              />
+              {imageFile && (
+                <p className="text-xs text-gray-500">Izabrano: {imageFile.name}</p>
+              )}
+            </div>
             <div className="md:col-span-2">
-              <Button type="submit" fullWidth>Kreiraj aranžman</Button>
+              <Button type="submit" fullWidth disabled={uploading}>
+                {uploading ? "Učitavanje..." : "Kreiraj aranžman"}
+              </Button>
             </div>
           </form>
         </div>
@@ -247,27 +305,50 @@ export default function ManageArrangementsPage() {
                     <InputField label="Kapacitet" type="number" value={editCapacity} onChange={(e) => setEditCapacity(e.target.value)} required />
                     <InputField label="Datum polaska" type="date" value={editStart} onChange={(e) => setEditStart(e.target.value)} required />
                     <InputField label="Datum povratka" type="date" value={editEnd} onChange={(e) => setEditEnd(e.target.value)} required />
+                    <div className="flex flex-col gap-1.5 w-full md:col-span-2">
+                      <label className="text-sm font-medium text-gray-700">Nova slika (opciono)</label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setEditImageFile(e.target.files?.[0] || null)}
+                        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 outline-none focus:border-[#FF7F51]"
+                      />
+                      {a.image && !editImageFile && (
+                        <p className="text-xs text-gray-500">Trenutna slika: {a.image}</p>
+                      )}
+                    </div>
                   </div>
                   <div className="flex gap-3 mt-4">
-                    <Button variant="success" onClick={() => handleUpdate(a.id)}>Sačuvaj</Button>
+                    <Button variant="success" onClick={() => handleUpdate(a.id)} disabled={uploading}>
+                      {uploading ? "Učitavanje..." : "Sačuvaj"}
+                    </Button>
                     <Button variant="secondary" onClick={() => setEditId(null)}>Otkaži</Button>
                   </div>
                 </div>
               ) : (
                 <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900">{a.destination}</h3>
-                      <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-blue-100 text-blue-800">
-                        {a.category.name}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-2">{a.description}</p>
-                    <div className="flex gap-4 text-sm text-gray-500">
-                      <span>💰 {a.price}€</span>
-                      <span>🌙 {a.numberOfNights} noći</span>
-                      <span>👥 {a.capacity} mjesta</span>
-                      <span>📅 {new Date(a.startDate).toLocaleDateString("sr-RS")} - {new Date(a.endDate).toLocaleDateString("sr-RS")}</span>
+                  <div className="flex gap-4 flex-1">
+                    {a.image && (
+                      <img
+                        src={a.image}
+                        alt={a.destination}
+                        className="w-32 h-24 object-cover rounded-lg"
+                      />
+                    )}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="text-lg font-semibold text-gray-900">{a.destination}</h3>
+                        <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-blue-100 text-blue-800">
+                          {a.category.name}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-2">{a.description}</p>
+                      <div className="flex gap-4 text-sm text-gray-500">
+                        <span>💰 {a.price}€</span>
+                        <span>🌙 {a.numberOfNights} noći</span>
+                        <span>👥 {a.capacity} mjesta</span>
+                        <span>📅 {new Date(a.startDate).toLocaleDateString("sr-RS")} - {new Date(a.endDate).toLocaleDateString("sr-RS")}</span>
+                      </div>
                     </div>
                   </div>
                   {canEdit(a) && (

@@ -3,6 +3,7 @@ import { prisma } from "@/app/lib/prisma";
 import { verifyToken } from "@/app/lib/auth";
 import { cookies } from "next/headers";
 
+
 export async function POST(req: Request) {
   try {
     const cookieStore = await cookies();
@@ -15,7 +16,7 @@ export async function POST(req: Request) {
       );
     }
 
-     const payload: any = await verifyToken(token);
+    const payload = await verifyToken(token);
 
     if (payload.role !== "ADMIN" && payload.role !== "AGENT") {
       return NextResponse.json(
@@ -34,6 +35,7 @@ export async function POST(req: Request) {
       numberOfNights,
       categoryId,
       capacity,
+      image,
     } = body;
 
     if (
@@ -78,7 +80,8 @@ export async function POST(req: Request) {
         numberOfNights,
         categoryId,
         capacity: capacity ?? 20,
-        createdById: payload.userId
+        createdById: payload.userId,
+        ...(image ? { image } : {}),
       },
     });
 

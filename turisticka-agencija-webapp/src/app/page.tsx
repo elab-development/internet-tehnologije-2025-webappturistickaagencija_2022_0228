@@ -13,6 +13,7 @@ type Arrangement = {
   startDate: string;
   endDate: string;
   numberOfNights: number;
+  image: string | null;
   category: { id: number; name: string };
 };
 
@@ -33,7 +34,6 @@ export default function Home() {
 
   return (
     <div>
-      {/* Hero sekcija */}
       <section className="bg-gradient-to-r from-[#4F000B] to-[#CE4257] text-white py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
@@ -48,7 +48,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Prednosti */}
       <section className="max-w-6xl mx-auto px-4 py-16">
         <h2 className="text-2xl font-bold text-gray-900 text-center mb-10">
           Zašto izabrati nas?
@@ -72,7 +71,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Izdvojeni aranžmani */}
       <section className="bg-white py-16 px-4">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-2xl font-bold text-gray-900 text-center mb-10">
@@ -93,6 +91,7 @@ export default function Home() {
                   price={a.price}
                   badge={a.category.name}
                   badgeColor="blue"
+                  image={a.image || undefined}
                   onClick={() => router.push(`/arrangements`)}
                 >
                   <div className="flex justify-between text-sm text-gray-500">
@@ -114,9 +113,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="bg-[#4F000B] text-[#FF9B54]/70 py-8 px-4 text-center text-sm">
-        <p>© 2025 TravelApp. Sva prava zadržana.</p>
+        <p>© 2025 Golden Compass. Sva prava zadržana.</p>
       </footer>
     </div>
   );

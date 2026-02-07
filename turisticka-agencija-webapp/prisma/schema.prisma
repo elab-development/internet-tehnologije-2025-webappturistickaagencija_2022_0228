@@ -49,6 +49,7 @@ model Arrangement {
   endDate       DateTime
   numberOfNights Int
   categoryId    Int
+  image  String?
   isActive      Boolean       @default(true)
   capacity      Int           @default(20)
   createdById   Int
