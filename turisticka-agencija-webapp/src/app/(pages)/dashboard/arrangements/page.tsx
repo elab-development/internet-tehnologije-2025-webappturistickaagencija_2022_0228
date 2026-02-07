@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Card from "../../components/Card";
-import Button from "../../components/Button";
-import InputField from "../../components/InputField";
+import Card from "../../../components/Card";
+import Button from "../../../components/Button";
+import InputField from "../../../components/InputField";
 
 type Category = {
   id: number;
