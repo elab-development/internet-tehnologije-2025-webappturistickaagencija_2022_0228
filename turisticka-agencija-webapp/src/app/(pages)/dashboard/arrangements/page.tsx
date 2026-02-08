@@ -55,6 +55,8 @@ export default function ManageArrangementsPage() {
   const [editCapacity, setEditCapacity] = useState("");
   const [editImageFile, setEditImageFile] = useState<File | null>(null);
 
+  const [editCategoryId, setEditCategoryId] = useState(""); 
+
   useEffect(() => {
     if (loading) return;
     if (!user || user.role === "CLIENT") { router.push("/dashboard"); return; }
@@ -148,6 +150,7 @@ export default function ManageArrangementsPage() {
     setEditNights(String(a.numberOfNights));
     setEditCapacity(String(a.capacity));
     setEditImageFile(null);
+    setEditCategoryId(String(a.category.id)); 
   };
 
   const handleUpdate = async (id: number) => {
@@ -176,6 +179,11 @@ export default function ManageArrangementsPage() {
         endDate: editEnd,
         numberOfNights: Number(editNights),
         capacity: Number(editCapacity),
+
+        ...(user?.role === "ADMIN" && { 
+          categoryId: Number(editCategoryId),
+        }),
+
         ...(imageUrl ? { image: imageUrl } : {}),
       }),
     });
@@ -305,6 +313,23 @@ export default function ManageArrangementsPage() {
                     <InputField label="Kapacitet" type="number" value={editCapacity} onChange={(e) => setEditCapacity(e.target.value)} required />
                     <InputField label="Datum polaska" type="date" value={editStart} onChange={(e) => setEditStart(e.target.value)} required />
                     <InputField label="Datum povratka" type="date" value={editEnd} onChange={(e) => setEditEnd(e.target.value)} required />
+
+                    {user?.role === "ADMIN" && (
+                    <div className="flex flex-col gap-1.5 w-full md:col-span-2">
+                      <label className="text-sm font-medium text-gray-700">Kategorija</label>
+                        <select
+                          value={editCategoryId}
+                          onChange={(e) => setEditCategoryId(e.target.value)}
+                          className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 outline-none focus:border-[#FF7F51]"
+                          >
+                        {categories.map((c) => (
+                        <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                        </select>
+                      </div>
+                  )}
+
+
                     <div className="flex flex-col gap-1.5 w-full md:col-span-2">
                       <label className="text-sm font-medium text-gray-700">Nova slika (opciono)</label>
                       <input

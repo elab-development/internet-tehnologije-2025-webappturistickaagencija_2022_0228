@@ -80,7 +80,18 @@ export async function PUT(
     }
 
     const body = await req.json();
-    const { destination, description, price, startDate, endDate, numberOfNights, capacity, image } = body;
+
+    const { 
+      destination, 
+      description, 
+      price, 
+      startDate, 
+      endDate, 
+      numberOfNights, 
+      capacity, 
+      image,
+      categoryId
+    } = body;
 
     const updated = await prisma.arrangement.update({
       where: { id },
@@ -93,6 +104,10 @@ export async function PUT(
         numberOfNights,
         capacity,
         ...(image !== undefined ? { image } : {}),
+
+        ...(payload.role === "ADMIN" && categoryId && {
+          categoryId
+        }),
       }
     });
 
@@ -106,6 +121,7 @@ export async function PUT(
     return NextResponse.json({ message: "Greška na serveru." }, { status: 500 });
   }
 }
+
 
 export async function DELETE(
   req: Request,

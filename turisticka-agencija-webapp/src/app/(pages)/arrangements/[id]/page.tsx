@@ -104,7 +104,6 @@ export default function ArrangementDetails() {
       <h1 className="text-3xl font-bold mb-2">{arrangement.destination}</h1>
       <p className="text-gray-500 mb-6">{arrangement.category?.name}</p>
 
-      {/* PORUKE */}
       {successMsg && (
         <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6 text-sm">
           {successMsg}
