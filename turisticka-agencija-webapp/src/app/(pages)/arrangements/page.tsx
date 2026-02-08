@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Card from "../../components/Card";
 import Button from "../../components/Button";
 import InputField from "../../components/InputField";
@@ -33,6 +34,8 @@ type Arrangement = {
 };
 
 export default function ArrangementsPage() {
+  const router = useRouter();
+
   const [arrangements, setArrangements] = useState<Arrangement[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [discounts, setDiscounts] = useState<Discount[]>([]);
@@ -128,7 +131,7 @@ export default function ArrangementsPage() {
             <select
               value={selectedCategory}
               onChange={(e) => handleCategory(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 outline-none focus:border-[#FF7F51]"
+              className="w-full px-4 py-2.5 rounded-lg border border-gray-300"
             >
               <option value="">Sve kategorije</option>
               {categories.map((c) => (
@@ -142,7 +145,7 @@ export default function ArrangementsPage() {
             <select
               value={sortBy}
               onChange={(e) => handleSort(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 outline-none focus:border-[#FF7F51]"
+              className="w-full px-4 py-2.5 rounded-lg border border-gray-300"
             >
               <option value="newest">Najnovije</option>
               <option value="price-asc">Cijena: najniža</option>
@@ -157,62 +160,60 @@ export default function ArrangementsPage() {
         </div>
       </div>
 
-      {paginated.length === 0 ? (
-        <div className="text-center py-16">
-          <p className="text-gray-500 text-lg">Nema aranžmana koji odgovaraju pretrazi.</p>
-          <div className="mt-4">
-            <Button variant="outline" onClick={() => { setSearch(""); setSelectedCategory(""); }}>
-              Resetuj filtere
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {paginated.map((a) => {
-            const discount = getActiveDiscount(a.id);
-            const discountedPrice = getDiscountedPrice(a.price, discount);
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {paginated.map((a) => {
+          const discount = getActiveDiscount(a.id);
+          const discountedPrice = getDiscountedPrice(a.price, discount);
 
-            return (
-              <Card
-                key={a.id}
-                title={a.destination}
-                description={a.description}
-                price={discountedPrice ?? a.price}
-                badge={a.category.name}
-                badgeColor="blue"
-                image={a.image || undefined}
-              >
-                <div className="flex flex-col gap-2 text-sm text-gray-500">
-                  {discount && discountedPrice && (
-                    <div className="bg-green-50 border border-green-200 rounded-lg px-3 py-2 mb-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-green-700 font-semibold">
-                          🏷️ {discount.type === "PERCENTAGE" ? `${discount.value}% popust` : `${discount.value}€ popust`}
-                        </span>
-                      </div>
-                      <span className="text-green-600 text-xs line-through">
-                        Originalna cijena: {a.price.toFixed(2)} €
-                      </span>
+          return (
+            <Card
+              key={a.id}
+              title={a.destination}
+              description={a.description}
+              price={discountedPrice ?? a.price}
+              badge={a.category.name}
+              badgeColor="blue"
+              image={a.image || undefined}
+            >
+              <div className="flex flex-col gap-2 text-sm text-gray-500">
+
+                {discount && discountedPrice && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                    🏷️ {discount.type === "PERCENTAGE"
+                      ? `${discount.value}% popust`
+                      : `${discount.value}€ popust`}
+                    <div className="text-xs line-through">
+                      {a.price.toLocaleString("sr-RS")} €
                     </div>
-                  )}
+                  </div>
+                )}
 
-                  <div className="flex justify-between">
-                    <span>🌙 {a.numberOfNights} noći</span>
-                    <span>👥 {a.capacity} mjesta</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>📅 {new Date(a.startDate).toLocaleDateString("sr-RS")}</span>
-                    <span>📅 {new Date(a.endDate).toLocaleDateString("sr-RS")}</span>
-                  </div>
+                <div className="flex justify-between">
+                  <span>🌙 {a.numberOfNights} noći</span>
+                  <span>👥 {a.capacity} mjesta</span>
                 </div>
-              </Card>
-            );
-          })}
-        </div>
-      )}
 
+                <div className="flex justify-between">
+                  <span>📅 {new Date(a.startDate).toLocaleDateString("sr-RS")}</span>
+                  <span>📅 {new Date(a.endDate).toLocaleDateString("sr-RS")}</span>
+                </div>
+
+                <Button
+                  fullWidth
+                  onClick={() => router.push(`/arrangements/${a.id}`)}
+                >
+                  Rezerviši
+                </Button>
+
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* PAGINATION */}
       {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-2 mt-10">
+        <div className="flex justify-center gap-2 mt-10">
           <Button
             variant="outline"
             size="sm"
@@ -226,7 +227,7 @@ export default function ArrangementsPage() {
             <button
               key={page}
               onClick={() => setCurrentPage(page)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
                 currentPage === page
                   ? "bg-[#CE4257] text-white"
                   : "text-gray-600 hover:bg-gray-100"

@@ -35,30 +35,36 @@ export default function Card({
       className={`bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col h-full transition-all overflow-hidden
         ${onClick ? "cursor-pointer hover:shadow-md hover:border-[#CE4257]" : ""}`}
     >
-      {image && (
-        <img
-          src={image}
-          alt={title}
-          className="w-full h-48 object-cover"
-        />
-      )}
+      <img
+        src={image && image !== "" ? image : "/images/default.jpg"}
+        alt={title}
+        className="w-full h-52 object-cover"
+      />
+
 
       <div className="p-6 flex flex-col gap-3 flex-1">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+
           {badge && (
-            <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${badgeColors[badgeColor]}`}>
+            <span
+              className={`text-xs font-medium px-2.5 py-1 rounded-full ${badgeColors[badgeColor]}`}
+            >
               {badge}
             </span>
           )}
         </div>
 
         {description && (
-          <p className="text-gray-600 text-sm line-clamp-2">{description}</p>
+          <p className="text-gray-600 text-sm line-clamp-2">
+            {description}
+          </p>
         )}
 
         {price !== undefined && (
-          <p className="text-xl font-bold text-[#CE4257]">{price.toFixed(2)} €</p>
+          <p className="text-xl font-bold text-[#CE4257]">
+            {price.toLocaleString("sr-RS")} €
+          </p>
         )}
 
         {children && <div className="mt-auto pt-2">{children}</div>}

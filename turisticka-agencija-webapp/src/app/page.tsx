@@ -52,22 +52,27 @@ export default function Home() {
         <h2 className="text-2xl font-bold text-gray-900 text-center mb-10">
           Zašto izabrati nas?
         </h2>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card title="🌍 Raznovrsne destinacije">
+
+          <Card title="Raznovrsne destinacije" image="/images/globe.jpg">
             <p className="text-gray-600 text-sm">
               Od planinskih odmarališta do egzotičnih plaža — imamo ponudu za svakoga.
             </p>
           </Card>
-          <Card title="💰 Najbolje cijene">
+
+          <Card title="Najbolje cijene" image="/images/money.jpg">
             <p className="text-gray-600 text-sm">
               Garantujemo konkurentne cijene i redovne popuste na odabrane aranžmane.
             </p>
           </Card>
-          <Card title="⭐ Pouzdana usluga">
+
+          <Card title="Pouzdana usluga" image="/images/star.jpg">
             <p className="text-gray-600 text-sm">
               Naš tim je tu da vam pomogne od rezervacije do povratka kući.
             </p>
           </Card>
+
         </div>
       </section>
 
@@ -91,15 +96,21 @@ export default function Home() {
                   price={a.price}
                   badge={a.category.name}
                   badgeColor="blue"
-                  image={a.image || undefined}
-                  onClick={() => router.push(`/arrangements`)}
+                  image={a.image ? a.image : "/images/santorini.jpg"}
                 >
-                  <div className="flex justify-between text-sm text-gray-500">
-                    <span>{a.numberOfNights} noći</span>
+                  <div className="flex justify-between text-sm text-gray-500 mb-3">
+                    <span>🌙 {a.numberOfNights} noći</span>
                     <span>
-                      {new Date(a.startDate).toLocaleDateString("sr-RS")}
+                      📅 {new Date(a.startDate).toLocaleDateString("sr-RS")}
                     </span>
                   </div>
+
+                  <Button
+                    fullWidth
+                    onClick={() => router.push(`/arrangements/${a.id}`)}
+                  >
+                    Rezerviši
+                  </Button>
                 </Card>
               ))}
             </div>

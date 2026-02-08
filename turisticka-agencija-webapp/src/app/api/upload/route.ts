@@ -15,11 +15,11 @@ export async function POST(req: Request) {
     const buffer = Buffer.from(bytes);
 
     const filename = `${Date.now()}-${file.name.replace(/\s/g, "-")}`;
-    const filepath = path.join(process.cwd(), "public/images/arrangements", filename);
+    const filepath = path.join(process.cwd(), "public/images", filename);
 
     await writeFile(filepath, buffer);
 
-    return NextResponse.json({ url: `/images/arrangements/${filename}` });
+    return NextResponse.json({ url: `/images/${filename}` });
   } catch {
     return NextResponse.json({ message: "Greška pri uploadu." }, { status: 500 });
   }

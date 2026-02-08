@@ -18,7 +18,7 @@ export async function PUT(
       );
     }
 
-    const payload = await verifyToken(token);
+    const payload: any = await verifyToken(token);
 
     if (payload.role === "CLIENT") {
       return NextResponse.json(
@@ -28,9 +28,7 @@ export async function PUT(
     }
 
     const url = new URL(req.url);
-    const segments = url.pathname.split("/");
-
-    const reservationId = Number(segments[3]);
+    const reservationId = Number(url.pathname.split("/")[3]);
 
     if (isNaN(reservationId)) {
       return NextResponse.json(
@@ -74,9 +72,10 @@ export async function PUT(
     }
 
     if (status === "CONFIRMED" && reservation.status !== "CONFIRMED") {
-      if (reservation.arrangement.capacity <= 0) {
+
+      if (reservation.arrangement.capacity < reservation.numberOfGuests) {
         return NextResponse.json(
-          { message: "Nema više slobodnih mjesta." },
+          { message: "Nema dovoljno slobodnih mjesta." },
           { status: 400 }
         );
       }
@@ -85,7 +84,7 @@ export async function PUT(
         where: { id: reservation.arrangementId },
         data: {
           capacity: {
-            decrement: 1,
+            decrement: reservation.numberOfGuests,
           },
         },
       });
@@ -96,7 +95,7 @@ export async function PUT(
         where: { id: reservation.arrangementId },
         data: {
           capacity: {
-            increment: 1,
+            increment: reservation.numberOfGuests,
           },
         },
       });

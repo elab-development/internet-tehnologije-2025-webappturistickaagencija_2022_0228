@@ -15,6 +15,7 @@ type Reservation = {
     id: number;
     destination: string;
     price: number;
+    image?: string;
   };
   user?: { id: number; firstName: string; lastName: string; email: string };
 };
@@ -25,26 +26,20 @@ export default function DashboardPage() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
 
-  const [arrangements, setArrangements] = useState<{ id: number; destination: string; price: number }[]>([]);
-  const [selectedArrangement, setSelectedArrangement] = useState("");
-  const [guests, setGuests] = useState("1");
-  const [reservationMsg, setReservationMsg] = useState("");
-
   useEffect(() => {
     if (loading) return;
-    if (!user) { router.push("/login"); return; }
+    if (!user) {
+      router.push("/login");
+      return;
+    }
 
     const fetchData = async () => {
       try {
-        const [resRes, arrRes] = await Promise.all([
-          fetch("/api/reservations"),
-          fetch("/api/arrangements"),
-        ]);
-        const [res, arr] = await Promise.all([resRes.json(), arrRes.json()]);
-        setReservations(Array.isArray(res) ? res : []);
-        setArrangements(Array.isArray(arr) ? arr : []);
+        const res = await fetch("/api/reservations");
+        const data = await res.json();
+        setReservations(Array.isArray(data) ? data : []);
       } catch {
-        console.error("Greška pri učitavanju.");
+        console.error("Greška pri učitavanju rezervacija.");
       }
       setDataLoading(false);
     };
@@ -52,40 +47,18 @@ export default function DashboardPage() {
     fetchData();
   }, [user, loading, router]);
 
-  const handleReservation = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setReservationMsg("");
-
-    const res = await fetch("/api/reservations", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        arrangementId: Number(selectedArrangement),
-        numberOfGuests: Number(guests),
-      }),
-    });
-    const data = await res.json();
-
-    if (res.ok) {
-      setReservationMsg("Rezervacija kreirana!");
-      setSelectedArrangement("");
-      setGuests("1");
-      const updated = await fetch("/api/reservations").then((r) => r.json());
-      setReservations(Array.isArray(updated) ? updated : []);
-    } else {
-      setReservationMsg(data.message || "Greška.");
-    }
-  };
-
   const handleStatusChange = async (id: number, status: string) => {
     const res = await fetch(`/api/reservations/${id}/status`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
     });
+
     if (res.ok) {
       const updated = await fetch("/api/reservations").then((r) => r.json());
       setReservations(Array.isArray(updated) ? updated : []);
+    } else {
+      alert("Greška pri promjeni statusa");
     }
   };
 
@@ -125,98 +98,65 @@ export default function DashboardPage() {
       <h1 className="text-3xl font-bold text-gray-900 mb-2">
         Dobrodošli, {user.firstName}!
       </h1>
+
       <p className="text-gray-500 mb-10">
         Uloga: <span className="font-medium text-[#CE4257]">{user.role}</span>
       </p>
 
+      {/* 🔵 ADMIN + AGENT PANEL */}
       {(user.role === "ADMIN" || user.role === "AGENT") && (
-        <section className="mb-10">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Upravljanje</h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <section className="mb-12">
+          <h2 className="text-xl font-semibold mb-4">Upravljanje sistemom</h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
+
             {user.role === "ADMIN" && (
-              <Card title="👥 Korisnici" description="Upravljaj nalozima, ulogama i statusom">
+              <Card title="Korisnici" description="Upravljanje korisnicima" image="/images/users.jpg">
                 <Button fullWidth onClick={() => router.push("/dashboard/users")}>
                   Upravljaj
                 </Button>
               </Card>
             )}
+
             {user.role === "ADMIN" && (
-              <Card title="📁 Kategorije" description="Dodaj, izmijeni ili obriši kategorije">
+              <Card title="Kategorije" description="Upravljanje kategorijama" image="/images/category.jpg">
                 <Button fullWidth onClick={() => router.push("/dashboard/categories")}>
                   Upravljaj
                 </Button>
               </Card>
             )}
-            <Card title="✈️ Aranžmani" description="Kreiraj, izmijeni ili obriši aranžmane">
+
+            <Card title="Aranžmani" description="Upravljanje aranžmanima" image="/images/arrangements.jpg">
               <Button fullWidth onClick={() => router.push("/dashboard/arrangements")}>
                 Upravljaj
               </Button>
             </Card>
-            <Card title="🏷️ Popusti" description="Dodaj ili izmijeni popuste na aranžmane">
+
+            <Card title="Popusti" description="Popusti na aranžmane" image="/images/discounts.jpg">
               <Button fullWidth onClick={() => router.push("/dashboard/discounts")}>
                 Upravljaj
               </Button>
             </Card>
+
           </div>
         </section>
       )}
 
-      {user.role === "CLIENT" && (
-        <section className="mb-10">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Nova rezervacija</h2>
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            {reservationMsg && (
-              <div className="bg-[#FF9B54]/10 border border-[#FF9B54]/30 text-[#4F000B] px-4 py-2 rounded-lg mb-4 text-sm">
-                {reservationMsg}
-              </div>
-            )}
-            <form onSubmit={handleReservation} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-              <div className="flex flex-col gap-1.5 w-full">
-                <label className="text-sm font-medium text-gray-700">Aranžman *</label>
-                <select
-                  value={selectedArrangement}
-                  onChange={(e) => setSelectedArrangement(e.target.value)}
-                  required
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 outline-none focus:border-[#FF7F51]"
-                >
-                  <option value="">Izaberi aranžman</option>
-                  {arrangements.map((a) => (
-                    <option key={a.id} value={a.id}>
-                      {a.destination} - {a.price}€
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex flex-col gap-1.5 w-full">
-                <label className="text-sm font-medium text-gray-700">Broj gostiju *</label>
-                <input
-                  type="number"
-                  value={guests}
-                  onChange={(e) => setGuests(e.target.value)}
-                  min="1"
-                  required
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 outline-none focus:border-[#FF7F51]"
-                />
-              </div>
-              <Button type="submit">Rezerviši</Button>
-            </form>
-          </div>
-        </section>
-      )}
-
+      {/* 🔵 REZERVACIJE */}
       <section>
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">
-          {user.role === "CLIENT" ? "Moje rezervacije" : "Rezervacije"}
+        <h2 className="text-xl font-semibold mb-6">
+          {user.role === "CLIENT" ? "Moje rezervacije" : "Sve rezervacije"}
         </h2>
 
         {reservations.length === 0 ? (
           <p className="text-gray-500">Nema rezervacija.</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {reservations.map((r) => (
               <Card
                 key={r.id}
                 title={r.arrangement.destination}
+                image={r.arrangement.image || "/images/santorini.jpg"}
                 badge={statusLabel(r.status)}
                 badgeColor={statusColor(r.status)}
               >
@@ -224,24 +164,39 @@ export default function DashboardPage() {
                   <span>👥 Gostiju: {r.numberOfGuests}</span>
                   <span>💰 Cijena: {r.arrangement.price}€</span>
                   <span>📅 {new Date(r.createdAt).toLocaleDateString("sr-RS")}</span>
-                  {r.user && <span>🧑 {r.user.firstName} {r.user.lastName}</span>}
 
-                  <div className="flex gap-2 mt-2 flex-wrap">
-                    {(user.role === "ADMIN" || user.role === "AGENT") && r.status === "PENDING" && (
-                      <>
-                        <Button size="sm" variant="success" onClick={() => handleStatusChange(r.id, "CONFIRMED")}>Potvrdi</Button>
-                        <Button size="sm" variant="danger" onClick={() => handleStatusChange(r.id, "CANCELLED")}>Otkaži</Button>
-                      </>
+                  {r.user && (
+                    <span>🧑 {r.user.firstName} {r.user.lastName}</span>
+                  )}
+
+                  <div className="flex gap-2 mt-3 flex-wrap">
+
+                    {(user.role === "ADMIN" || user.role === "AGENT") &&
+                      r.status === "PENDING" && (
+                        <>
+                          <Button size="sm" variant="success" onClick={() => handleStatusChange(r.id, "CONFIRMED")}>
+                            Potvrdi
+                          </Button>
+
+                          <Button size="sm" variant="danger" onClick={() => handleStatusChange(r.id, "CANCELLED")}>
+                            Otkaži
+                          </Button>
+                        </>
+                      )}
+
+                    {(user.role === "ADMIN" || user.role === "AGENT") &&
+                      r.status === "CONFIRMED" && (
+                        <Button size="sm" variant="secondary" onClick={() => handleStatusChange(r.id, "COMPLETED")}>
+                          Završi
+                        </Button>
+                      )}
+
+                    {(user.role === "CLIENT" || user.role === "ADMIN") && (
+                      <Button size="sm" variant="danger" onClick={() => handleDeleteReservation(r.id)}>
+                        Obriši
+                      </Button>
                     )}
-                    {(user.role === "ADMIN" || user.role === "AGENT") && r.status === "CONFIRMED" && (
-                      <Button size="sm" variant="secondary" onClick={() => handleStatusChange(r.id, "COMPLETED")}>Završi</Button>
-                    )}
-                    {user.role === "CLIENT" && r.status === "PENDING" && (
-                      <Button size="sm" variant="danger" onClick={() => handleDeleteReservation(r.id)}>Obriši</Button>
-                    )}
-                    {user.role === "ADMIN" && (
-                      <Button size="sm" variant="danger" onClick={() => handleDeleteReservation(r.id)}>Obriši</Button>
-                    )}
+
                   </div>
                 </div>
               </Card>
