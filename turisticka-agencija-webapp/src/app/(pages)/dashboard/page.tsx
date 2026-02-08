@@ -16,6 +16,13 @@ type Reservation = {
     destination: string;
     price: number;
     image?: string;
+    discounts?: {
+      id: number;
+      type: "PERCENTAGE" | "FIXED";
+      value: number;
+      startDate: string;
+      endDate: string;
+    }[];
   };
   user?: { id: number; firstName: string; lastName: string; email: string };
 };
@@ -63,6 +70,8 @@ export default function DashboardPage() {
   };
 
   const handleDeleteReservation = async (id: number) => {
+    if (!confirm("Da li ste sigurni?")) return;
+
     const res = await fetch(`/api/reservations/${id}`, { method: "DELETE" });
     if (res.ok) {
       setReservations((prev) => prev.filter((r) => r.id !== id));
@@ -81,6 +90,23 @@ export default function DashboardPage() {
     if (status === "CANCELLED") return "Otkazana";
     if (status === "COMPLETED") return "Završena";
     return "Na čekanju";
+  };
+
+  const calculateTotalPrice = (r: Reservation) => {
+    let total = r.arrangement.price * r.numberOfGuests;
+    const discount = r.arrangement.discounts?.[0];
+
+    if (discount) {
+      if (discount.type === "PERCENTAGE") {
+        total = total - total * (discount.value / 100);
+      }
+      if (discount.type === "FIXED") {
+        total = total - discount.value;
+      }
+    }
+
+    if (total < 0) total = 0;
+    return total.toFixed(2);
   };
 
   if (loading || dataLoading) {
@@ -103,13 +129,11 @@ export default function DashboardPage() {
         Uloga: <span className="font-medium text-[#CE4257]">{user.role}</span>
       </p>
 
-      {/* 🔵 ADMIN + AGENT PANEL */}
       {(user.role === "ADMIN" || user.role === "AGENT") && (
         <section className="mb-12">
           <h2 className="text-xl font-semibold mb-4">Upravljanje sistemom</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
-
             {user.role === "ADMIN" && (
               <Card title="Korisnici" description="Upravljanje korisnicima" image="/images/users.jpg">
                 <Button fullWidth onClick={() => router.push("/dashboard/users")}>
@@ -137,12 +161,10 @@ export default function DashboardPage() {
                 Upravljaj
               </Button>
             </Card>
-
           </div>
         </section>
       )}
 
-      {/* 🔵 REZERVACIJE */}
       <section>
         <h2 className="text-xl font-semibold mb-6">
           {user.role === "CLIENT" ? "Moje rezervacije" : "Sve rezervacije"}
@@ -162,7 +184,7 @@ export default function DashboardPage() {
               >
                 <div className="flex flex-col gap-2 text-sm text-gray-600">
                   <span>👥 Gostiju: {r.numberOfGuests}</span>
-                  <span>💰 Cijena: {r.arrangement.price}€</span>
+                  <span>💰 Cijena: {calculateTotalPrice(r)}€</span>
                   <span>📅 {new Date(r.createdAt).toLocaleDateString("sr-RS")}</span>
 
                   {r.user && (
@@ -191,7 +213,19 @@ export default function DashboardPage() {
                         </Button>
                       )}
 
-                    {(user.role === "CLIENT" || user.role === "ADMIN") && (
+                    {user.role === "CLIENT" && r.status === "PENDING" && (
+                      <Button size="sm" variant="danger" onClick={() => handleDeleteReservation(r.id)}>
+                        Obriši
+                      </Button>
+                    )}
+
+                    {user.role === "CLIENT" && r.status === "CONFIRMED" && (
+                      <Button size="sm" variant="danger" onClick={() => handleStatusChange(r.id, "CANCELLED")}>
+                        Otkaži rezervaciju
+                      </Button>
+                    )}
+
+                    {user.role === "ADMIN" && (
                       <Button size="sm" variant="danger" onClick={() => handleDeleteReservation(r.id)}>
                         Obriši
                       </Button>

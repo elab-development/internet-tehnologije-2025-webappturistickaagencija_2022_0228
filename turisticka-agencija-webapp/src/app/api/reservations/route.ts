@@ -97,12 +97,23 @@ export async function GET() {
       );
 
     const payload: any = await verifyToken(token);
+    const now = new Date();
 
     if (payload.role === "ADMIN") {
       const reservations = await prisma.reservation.findMany({
         include: {
           user: true,
-          arrangement: true
+          arrangement: {
+            include: {
+              discounts: {
+                where: {
+                  startDate: { lte: now },
+                  endDate: { gte: now }
+                },
+                orderBy: { value: "desc" }
+              }
+            }
+          }
         },
         orderBy: { createdAt: "desc" }
       });
@@ -119,7 +130,17 @@ export async function GET() {
         },
         include: {
           user: true,
-          arrangement: true
+          arrangement: {
+            include: {
+              discounts: {
+                where: {
+                  startDate: { lte: now },
+                  endDate: { gte: now }
+                },
+                orderBy: { value: "desc" }
+              }
+            }
+          }
         },
         orderBy: { createdAt: "desc" }
       });
@@ -133,7 +154,17 @@ export async function GET() {
           userId: payload.userId
         },
         include: {
-          arrangement: true
+          arrangement: {
+            include: {
+              discounts: {
+                where: {
+                  startDate: { lte: now },
+                  endDate: { gte: now }
+                },
+                orderBy: { value: "desc" }
+              }
+            }
+          }
         },
         orderBy: { createdAt: "desc" }
       });
@@ -149,4 +180,3 @@ export async function GET() {
     );
   }
 }
-

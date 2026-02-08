@@ -83,6 +83,12 @@ export async function POST(req: Request) {
       );
     }
 
+    await prisma.discount.deleteMany({
+      where: {
+        arrangementId: Number(arrangementId)
+      }
+    });
+
     const discount = await prisma.discount.create({
       data: {
         arrangementId: Number(arrangementId),

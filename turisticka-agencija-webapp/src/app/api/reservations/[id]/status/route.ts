@@ -3,10 +3,7 @@ import { prisma } from "@/app/lib/prisma";
 import { verifyToken } from "@/app/lib/auth";
 import { cookies } from "next/headers";
 
-export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(req: Request) {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get("auth_token")?.value;
@@ -19,13 +16,6 @@ export async function PUT(
     }
 
     const payload: any = await verifyToken(token);
-
-    if (payload.role === "CLIENT") {
-      return NextResponse.json(
-        { message: "Klijent ne može mijenjati status." },
-        { status: 403 }
-      );
-    }
 
     const url = new URL(req.url);
     const reservationId = Number(url.pathname.split("/")[3]);
@@ -49,9 +39,7 @@ export async function PUT(
 
     const reservation = await prisma.reservation.findUnique({
       where: { id: reservationId },
-      include: {
-        arrangement: true,
-      },
+      include: { arrangement: true },
     });
 
     if (!reservation) {
@@ -59,6 +47,22 @@ export async function PUT(
         { message: "Rezervacija ne postoji." },
         { status: 404 }
       );
+    }
+
+    if (payload.role === "CLIENT") {
+      if (reservation.userId !== payload.userId) {
+        return NextResponse.json(
+          { message: "Možete mijenjati samo svoje rezervacije." },
+          { status: 403 }
+        );
+      }
+
+      if (status !== "CANCELLED") {
+        return NextResponse.json(
+          { message: "Klijent može samo otkazati rezervaciju." },
+          { status: 403 }
+        );
+      }
     }
 
     if (
@@ -72,7 +76,6 @@ export async function PUT(
     }
 
     if (status === "CONFIRMED" && reservation.status !== "CONFIRMED") {
-
       if (reservation.arrangement.capacity < reservation.numberOfGuests) {
         return NextResponse.json(
           { message: "Nema dovoljno slobodnih mjesta." },
