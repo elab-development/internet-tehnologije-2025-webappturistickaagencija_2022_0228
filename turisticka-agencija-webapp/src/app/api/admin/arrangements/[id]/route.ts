@@ -93,18 +93,50 @@ export async function PUT(
       categoryId
     } = body;
 
+    if (price !== undefined) {
+  const numPrice = Number(price);
+
+  if (numPrice <= 0) {
+    return NextResponse.json(
+      { message: "Cijena mora biti veća od 0." },
+      { status: 400 }
+    );
+  }
+
+  if (numPrice > 10000) {
+    return NextResponse.json(
+      { message: "Cijena je nerealna." },
+      { status: 400 }
+    );
+  }
+}
+
+  if (numberOfNights !== undefined && Number(numberOfNights) <= 0) {
+    return NextResponse.json(
+      { message: "Broj noći mora biti veći od 0." },
+      { status: 400 }
+    );
+  }
+
+  if (capacity !== undefined && Number(capacity) <= 0) {
+    return NextResponse.json(
+      { message: "Kapacitet mora biti veći od 0." },
+      { status: 400 }
+    );
+  }
+
+
     const updated = await prisma.arrangement.update({
       where: { id },
       data: {
         destination,
         description,
-        price,
+        price: price !== undefined ? Number(price) : undefined,
+        numberOfNights: numberOfNights !== undefined ? Number(numberOfNights) : undefined,
+        capacity: capacity !== undefined ? Number(capacity) : undefined,
         startDate: new Date(startDate),
         endDate: new Date(endDate),
-        numberOfNights,
-        capacity,
         ...(image !== undefined ? { image } : {}),
-
         ...(payload.role === "ADMIN" && categoryId && {
           categoryId
         }),

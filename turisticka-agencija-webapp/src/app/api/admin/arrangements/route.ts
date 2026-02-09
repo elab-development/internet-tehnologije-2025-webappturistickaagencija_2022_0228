@@ -38,6 +38,39 @@ export async function POST(req: Request) {
       image,
     } = body;
 
+    const numPrice = Number(price);
+    const numNights = Number(numberOfNights);
+    const numCapacity = Number(capacity ?? 20);
+
+    if (numPrice <= 0) {
+      return NextResponse.json(
+        { message: "Cijena mora biti veća od 0." },
+        { status: 400 }
+      );
+    }
+
+    if (numPrice > 10000) {
+      return NextResponse.json(
+        { message: "Cijena je nerealna." },
+        { status: 400 }
+      );
+    }
+
+    if (numNights <= 0) {
+      return NextResponse.json(
+        { message: "Broj noći mora biti veći od 0." },
+        { status: 400 }
+      );
+    }
+
+    if (numCapacity <= 0) {
+      return NextResponse.json(
+        { message: "Kapacitet mora biti veći od 0." },
+        { status: 400 }
+      );
+    }
+
+
     if (
       !destination ||
       !price ||
@@ -74,12 +107,12 @@ export async function POST(req: Request) {
       data: {
         destination,
         description,
-        price,
+        price: numPrice,
+        numberOfNights: numNights,
+        capacity: numCapacity,
         startDate: new Date(startDate),
         endDate: new Date(endDate),
-        numberOfNights,
         categoryId,
-        capacity: capacity ?? 20,
         createdById: payload.userId,
         ...(image ? { image } : {}),
       },
