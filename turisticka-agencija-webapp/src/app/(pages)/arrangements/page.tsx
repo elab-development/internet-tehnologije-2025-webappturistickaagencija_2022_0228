@@ -68,19 +68,35 @@ export default function ArrangementsPage() {
 
   const getActiveDiscount = (arrangementId: number): Discount | null => {
     const now = new Date();
-    return discounts.find(
+
+    const active = discounts.filter(
       (d) =>
         d.arrangementId === arrangementId &&
         new Date(d.startDate) <= now &&
         new Date(d.endDate) >= now
-    ) || null;
+    );
+
+    if (active.length === 0) return null;
+
+    return active.sort((a, b) => b.value - a.value)[0];
   };
 
   const getDiscountedPrice = (price: number, discount: Discount | null): number | null => {
     if (!discount) return null;
-    if (discount.type === "PERCENTAGE") return price - (price * discount.value / 100);
-    if (discount.type === "FIXED") return price - discount.value;
-    return null;
+
+    let newPrice = price;
+
+    if (discount.type === "PERCENTAGE") {
+      newPrice = price - (price * discount.value / 100);
+    }
+
+    if (discount.type === "FIXED") {
+      newPrice = price - discount.value;
+    }
+
+    if (newPrice < 0) newPrice = 0;
+
+    return Number(newPrice.toFixed(2));
   };
 
   const filtered = arrangements
@@ -177,7 +193,7 @@ export default function ArrangementsPage() {
             >
               <div className="flex flex-col gap-2 text-sm text-gray-500">
 
-                {discount && discountedPrice && (
+                {discount && discountedPrice !== null && (
                   <div className="bg-green-50 border border-green-200 rounded-lg px-3 py-2">
                     🏷️ {discount.type === "PERCENTAGE"
                       ? `${discount.value}% popust`
@@ -211,7 +227,6 @@ export default function ArrangementsPage() {
         })}
       </div>
 
-      {/* PAGINATION */}
       {totalPages > 1 && (
         <div className="flex justify-center gap-2 mt-10">
           <Button

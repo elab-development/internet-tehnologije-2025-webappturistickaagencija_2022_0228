@@ -58,6 +58,28 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { arrangementId, type, value, startDate, endDate } = body;
 
+    
+    if (Number(value) <= 0) {
+      return NextResponse.json(
+        { message: "Popust mora biti veći od 0." },
+        { status: 400 }
+      );
+    }
+
+    if (type === "PERCENTAGE" && Number(value) > 50) {
+      return NextResponse.json(
+        { message: "Procentualni popust ne može biti veći od 50%." },
+        { status: 400 }
+      );
+    }
+
+    if (type === "FIXED" && Number(value) > 100) {
+      return NextResponse.json(
+        { message: "Fiksni popust ne može biti veći od 100€." },
+        { status: 400 }
+      );
+    }
+
     if (!arrangementId || !type || !value || !startDate || !endDate) {
       return NextResponse.json(
         { message: "Sva polja su obavezna" },
