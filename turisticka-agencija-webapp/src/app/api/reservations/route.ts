@@ -48,9 +48,9 @@ export async function POST(req: Request) {
     }
 
     const reserved = arrangement.reservations.reduce(
-      (sum, r) => sum + r.numberOfGuests,
-      0
-    );
+      (sum: number, r: any) => sum + r.numberOfGuests,
+        0
+      );
 
     if (reserved + numberOfGuests > arrangement.capacity) {
       return NextResponse.json(

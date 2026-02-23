@@ -97,7 +97,11 @@ export default function ArrangementDetails() {
     <div className="max-w-5xl mx-auto px-4 py-10">
 
       <img
-        src={arrangement.image || "/images/santorini.jpg"}
+        src={
+          arrangement.image
+          ? `/api/images/${arrangement.image.replace("/images/", "")}`
+          : "/api/images/globe.jpg"
+        }
         className="w-full h-[420px] object-cover rounded-xl mb-6"
       />
 

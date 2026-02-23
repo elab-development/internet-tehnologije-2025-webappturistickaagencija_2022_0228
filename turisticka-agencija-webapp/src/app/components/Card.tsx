@@ -36,11 +36,10 @@ export default function Card({
         ${onClick ? "cursor-pointer hover:shadow-md hover:border-[#CE4257]" : ""}`}
     >
       <img
-        src={image && image !== "" ? image : "/images/default.jpg"}
+        src={image ? `/api/images/${image.replace("/images/", "")}` : "/api/images/globe.jpg"}
         alt={title}
         className="w-full h-52 object-cover"
       />
-
 
       <div className="p-6 flex flex-col gap-3 flex-1">
         <div className="flex items-center justify-between">

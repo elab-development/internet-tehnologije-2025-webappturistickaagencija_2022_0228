@@ -355,7 +355,7 @@ export default function ManageArrangementsPage() {
                   <div className="flex gap-4 flex-1">
                     {a.image && (
                       <img
-                        src={a.image}
+                        src={`/api/images/${a.image!.replace("/images/", "")}`}
                         alt={a.destination}
                         className="w-32 h-24 object-cover rounded-lg"
                       />
