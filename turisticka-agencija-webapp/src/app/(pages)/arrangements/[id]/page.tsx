@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Button from "@/app/components/Button";
+import WeatherWidget from "@/app/components/WeatherWidget";
+import CountryWidget from "@/app/components/CountryWidget";
 
 type Arrangement = {
   id: number;
@@ -107,6 +109,17 @@ export default function ArrangementDetails() {
 
       <h1 className="text-3xl font-bold mb-2">{arrangement.destination}</h1>
       <p className="text-gray-500 mb-6">{arrangement.category?.name}</p>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        <div>
+          <h2 className="text-lg font-semibold mb-2">🌤️ Trenutno vrijeme</h2>
+          <WeatherWidget city={arrangement.destination} />
+        </div>
+        <div>
+          <h2 className="text-lg font-semibold mb-2">🌍 Info o državi</h2>
+          <CountryWidget destination={arrangement.destination} />
+        </div>
+      </div>
 
       {successMsg && (
         <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6 text-sm">
