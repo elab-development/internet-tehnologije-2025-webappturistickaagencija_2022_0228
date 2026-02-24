@@ -15,6 +15,7 @@ const swaggerSpec = {
     { name: "Popusti", description: "Upravljanje popustima" },
     { name: "Korisnici", description: "Upravljanje korisnicima (Admin)" },
     { name: "Upload", description: "Upload slika" },
+    { name: "Weather", description: "Vremenska prognoza za destinacije" },
   ],
   paths: {
     "/api/auth/register": {
@@ -549,6 +550,30 @@ const swaggerSpec = {
           "200": { description: "Slika uploadovana, vraća URL" },
           "400": { description: "Fajl nije poslat" },
           "500": { description: "Greška pri uploadu" },
+        },
+      },
+    },
+    "/api/weather": {
+      get: {
+        summary: "Dohvati vremensku prognozu za grad",
+        tags: ["Weather"],
+        parameters: [
+          {
+            name: "city",
+            in: "query",
+            required: true,
+            schema: { type: "string" },
+            example: "Pariz",
+            description: "Naziv grada za koji se traži prognoza",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Vremenska prognoza sa OpenWeatherMap API-ja (temperatura, opis, vlažnost...)",
+          },
+          "422": { description: "Parametar 'city' nije proslijeđen" },
+          "404": { description: "Grad nije pronađen" },
+          "500": { description: "Greška na serveru ili neispravan API ključ" },
         },
       },
     },
