@@ -71,7 +71,7 @@ http://localhost:3000
 |-------|-------|---------|
 | Admin | emilija.kozomara@gmail.com | ema123 |
 | Agent | jana.kiso@gmail.com | jana123 |
-| Korisnik | pavle.kiso@gamil.com | pavle123 |
+| Korisnik | pavle.kiso@gmail.com | pavle123 |
 
 ---
 
