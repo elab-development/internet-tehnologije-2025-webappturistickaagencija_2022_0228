@@ -10,20 +10,50 @@ type WeatherData = {
   windSpeed: number;
 };
 
+const cityNameMap: Record<string, string> = {
+  "mikonos": "Mykonos",
+  "kapadokija": "Goreme",
+  "bora bora": "Bora Bora",
+  "francuska polinezija": "Papeete",
+  "dubai i abu dhabi": "Dubai",
+};
+
+function normalizeCityName(name: string): string {
+  const lower = name.toLowerCase().trim();
+  return cityNameMap[lower] || name;
+}
+
 export default function WeatherWidget({ city }: { city: string }) {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    const cityName = city.split("–")[0].trim();
-    const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
-    fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(cityName)}&appid=${apiKey}&units=metric&lang=hr`
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.cod !== 200) { setError(true); setLoading(false); return; }
+    const parts = city.split("–").map(p => p.trim());
+
+    const rawQueries = [
+      parts[0].split(" i ")[0].trim(),
+      parts[0],
+      parts[1],
+      parts.join(" "),
+    ].filter(Boolean);
+
+    const queries = [...new Set(
+      rawQueries.map(q => normalizeCityName(q))
+    )];
+
+    const tryAll = async () => {
+      for (const query of queries) {
+        const res = await fetch(`/api/weather?city=${encodeURIComponent(query)}`);
+        const data = await res.json();
+        if (data.cod === 200 || data.cod === "200") return data;
+      }
+      return null;
+    };
+
+    tryAll()
+      .then(data => {
+        if (!data) { setError(true); setLoading(false); return; }
         setWeather({
           temp: Math.round(data.main.temp),
           description: data.weather[0].description,
